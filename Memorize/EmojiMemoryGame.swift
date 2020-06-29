@@ -10,12 +10,21 @@ import SwiftUI
 
 class EmojiMemoryGame: ObservableObject {
     @Published private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
+//    static var themes = [Theme]()
+    static var themes = [
+        Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"], color: Color.orange, numOfEmojis: 5),
+        Theme(name: "Christmas", emojis: ["🎅", "🎄", "🎁", "❄️", "⛄️"], color: Color.blue),
+        Theme(name: "Summer", emojis: ["☀️", "🕶", "🥵", "🏖", "🏝"], color: Color.yellow),
+        Theme(name: "Sports", emojis: ["⚽️", "🏓", "🏉", "🏊‍♂️"], color: Color.green),
+        Theme(name: "Music", emojis: ["🎸", "🎧", "🎹", "🎤"], color: Color.red),
+        Theme(name: "Flags", emojis: ["🇮🇪", "🇪🇸", "🇫🇷", "🇨🇦", "🇺🇸", "🇨🇳", "🇳🇮", "🇬🇧"], color: Color.gray, numOfEmojis: 6),
+    ]
         
     static func createMemoryGame() -> MemoryGame<String> {
-        let emojis: Array<String> = ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"]
+        let theme = themes.randomElement()!
         
-        return MemoryGame<String>(numberOfPairsOfCards: Int.random(in: 2...5)) { pairIndex in
-            return emojis[pairIndex]
+        return MemoryGame<String>(numberOfPairsOfCards: theme.getNumOfEmojis(), themeName: theme.name) { pairIndex in
+            return theme.emojis[pairIndex]
         }
     }
     
@@ -25,10 +34,33 @@ class EmojiMemoryGame: ObservableObject {
         model.cards
     }
     
+    private func getTheme() -> Theme? {
+        EmojiMemoryGame.themes.first(where: { $0.name == model.themeName })
+    }
+    
+    var themeColor: Color {
+        if let color = getTheme()?.color {
+            return color
+        } else {
+            return Color.black
+        }
+    }
+    
+    var score: Int {
+        get { model.score }
+        set { model.score = newValue }
+    }
+    
+    var themeName: String { model.themeName.capitalized }
+    
     // MARK: Intent(s)
     
     func choose(card: MemoryGame<String>.Card) {
         model.choose(card: card)
+    }
+    
+    func newGame() {
+        model = EmojiMemoryGame.createMemoryGame()
     }
 }
 
