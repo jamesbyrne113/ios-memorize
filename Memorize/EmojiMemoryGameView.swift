@@ -17,17 +17,24 @@ struct EmojiMemoryGameView: View {
                 .font(Font.largeTitle)
             Grid(viewModel.cards) { card in
                 CardView(card: card).onTapGesture {
-                    self.viewModel.choose(card: card)
+                    withAnimation(.linear(duration: 0.75)) {
+                        self.viewModel.choose(card: card)
+                    }
                 }
                     .padding(5)
             }
+                .padding()
+                .foregroundColor(viewModel.themeColor)
+            
             HStack {
                 Spacer()
                 Text("Score: \(viewModel.score)")
                 Spacer()
-                Button(action: { self.viewModel.newGame() }) {
-                    Text("New Game")
-                }
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.75)) {
+                        self.viewModel.resetGame()
+                    }
+                }, label: { Text("New Game")})
                 Spacer()
             }
                 .font(Font.headline)
@@ -38,6 +45,8 @@ struct EmojiMemoryGameView: View {
             .foregroundColor(viewModel.themeColor)
         
     }
+    
+    // MARK: - Drawing Constants
 }
 
 struct CardView: View {
@@ -49,32 +58,53 @@ struct CardView: View {
         }
     }
     
-    func body(for size: CGSize) -> some View {
-        ZStack {
-            if card.isFaceUp {
-                RoundedRectangle(cornerRadius: cornerRadius).fill(Color.white)
-                RoundedRectangle(cornerRadius: cornerRadius).stroke(lineWidth: edgeLineWidth)
-                Text(self.card.content)
-            } else {
-                if !card.isMatched {
-                    RoundedRectangle(cornerRadius: cornerRadius).fill()
-                }
-            }
+    @State private var animatedBonusRemaining: Double = 0
+    
+    private func startBonusTimeAnimation() {
+        animatedBonusRemaining = card.bonusRemaining
+        withAnimation(.linear(duration: card.bonusTimeRemaining)) {
+            animatedBonusRemaining = 0
         }
-        .font(Font.system(size: fontSize(for: size)))
+    }
+    
+    @ViewBuilder
+    private func body(for size: CGSize) -> some View {
+        if card.isFaceUp || !card.isMatched {
+            ZStack {
+                Group {
+                    if card.isConsumingBonusTime {
+                        Pie(startAngle: Angle.degrees(0-90), endAngle: Angle.degrees(-animatedBonusRemaining*360-90), clockwise: true)
+                            .onAppear {
+                                self.startBonusTimeAnimation()
+                            }
+                    } else {
+                        Pie(startAngle: Angle.degrees(0-90), endAngle: Angle.degrees(-card.bonusRemaining*360-90), clockwise: true)
+                    }
+                }
+                    .padding(5).opacity(0.4)
+                    .transition(.identity)
+
+                Text(self.card.content)
+                    .font(Font.system(size: fontSize(for: size)))
+                    .rotationEffect(Angle.degrees(card.isMatched ? 360 : 0))
+                    .animation(card.isMatched ? Animation.linear(duration: 0.75 ).repeatForever(autoreverses: false) : .default)
+            }
+            .cardify(isFaceUp: card.isFaceUp)
+            .transition(AnyTransition.scale)
+        }
     }
     
     // MARK: - Drawing Constants
     
-    let cornerRadius: CGFloat = 10
-    let edgeLineWidth: CGFloat = 3
-    func fontSize(for size: CGSize) -> CGFloat {
-        min(size.width, size.height) * 0.75
+    private func fontSize(for size: CGSize) -> CGFloat {
+        min(size.width, size.height) * 0.7
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiMemoryGameView(viewModel: EmojiMemoryGame())
+        let game = EmojiMemoryGame()
+        game.choose(card: game.cards[0])
+        return EmojiMemoryGameView(viewModel: game)
     }
 }
