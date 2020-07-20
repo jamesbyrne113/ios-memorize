@@ -12,18 +12,20 @@ class EmojiMemoryGame: ObservableObject {
     @Published private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
 
     private static var themes = [
-        Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"], color: Color.orange, numOfEmojis: 5),
-        Theme(name: "Christmas", emojis: ["🎅", "🎄", "🎁", "❄️", "⛄️"], color: Color.blue),
-        Theme(name: "Summer", emojis: ["☀️", "🕶", "🥵", "🏖", "🏝"], color: Color.yellow),
-        Theme(name: "Sports", emojis: ["⚽️", "🏓", "🏉", "🏊‍♂️"], color: Color.green),
-        Theme(name: "Music", emojis: ["🎸", "🎧", "🎹", "🎤"], color: Color.red),
-        Theme(name: "Flags", emojis: ["🇮🇪", "🇪🇸", "🇫🇷", "🇨🇦", "🇺🇸", "🇨🇳", "🇳🇮", "🇬🇧"], color: Color.gray, numOfEmojis: 6),
+        Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"], color: UIColor.systemOrange, numOfEmojis: 5),
+        Theme(name: "Christmas", emojis: ["🎅", "🤶", "🎄", "🎁", "❄️", "⛄️"], color: UIColor.systemBlue, numOfEmojis: 6),
+        Theme(name: "Summer", emojis: ["☀️", "🕶", "🥵", "🏖", "🏝", "⛱", "🌞", "🍉"], color: UIColor.systemYellow, numOfEmojis: 8),
+        Theme(name: "Sports", emojis: ["⚽️", "🏓", "🏊‍♂️", "🎾", "🎿", "🏀", "🏂", "🏇", "🏈", "🏏", "🏑", "🏒", "🏸", "🏹", "⚾️", "⛳️", "🥍", "🥎", "⛷", "⛸", "🏎"], color: UIColor.systemGreen, numOfEmojis: 10),
+        Theme(name: "Music", emojis: ["🎸", "🎧", "🎹", "🎤", "🎺", "🎻", "🎼", "🪕", "🎷", "🥁", "🎶", "🎵", "👩‍🎤", "👨‍🎤"], color: UIColor.systemRed, numOfEmojis: 10),
+        Theme(name: "Flags", emojis: ["🇮🇪", "🇪🇸", "🇫🇷", "🇨🇦", "🇺🇸", "🇨🇳", "🇳🇮", "🇬🇧"], color: UIColor.systemGray, numOfEmojis: 8),
     ]
         
     private static func createMemoryGame() -> MemoryGame<String> {
         let theme = themes.randomElement()!
         
-        return MemoryGame<String>(numberOfPairsOfCards: theme.getNumOfEmojis(), themeName: theme.name) { pairIndex in
+        print("json = \(String(decoding: theme.json!, as: UTF8.self))")
+        
+        return MemoryGame<String>(numberOfPairsOfCards: theme.numOfEmojis, themeName: theme.name) { pairIndex in
             return theme.emojis[pairIndex]
         }
     }
@@ -39,8 +41,8 @@ class EmojiMemoryGame: ObservableObject {
     }
     
     var themeColor: Color {
-        if let color = getTheme()?.color {
-            return color
+        if let uiColor = getTheme()?.color {
+            return Color(uiColor)
         } else {
             return Color.black
         }

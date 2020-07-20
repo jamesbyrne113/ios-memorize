@@ -9,25 +9,39 @@
 import Foundation
 import SwiftUI
 
-class Theme {
+class Theme: Codable {
     let name: String
     var emojis: [String]
-    let color: Color
+    fileprivate var _color: ThemeColor
+    var color: UIColor {
+        get { _color.uiColor }
+        set { _color = ThemeColor(uiColor: newValue)}
+    }
+    var numOfEmojis: Int
     
-    var numOfEmojis: Int?
-    
-    func getNumOfEmojis() -> Int {
-        if let numOfEmojis = self.numOfEmojis {
-            return numOfEmojis
-        } else {
-            return Int.random(in: 2...(emojis.count))
-        }
+    var json: Data? {
+        return try? JSONEncoder().encode(self)
     }
     
-    init(name: String, emojis: [String], color: Color, numOfEmojis: Int? = nil) {
+    init(name: String, emojis: [String], color: UIColor, numOfEmojis: Int) {
         self.name = name
         self.emojis = emojis
-        self.color = color
         self.numOfEmojis = numOfEmojis
+        self._color = ThemeColor(uiColor: color)
+    }
+    
+    fileprivate struct ThemeColor: Codable {
+        var red: CGFloat = -1
+        var blue: CGFloat = -1
+        var green: CGFloat = -1
+        var alpha: CGFloat = -1
+        
+        init(uiColor: UIColor) {
+            uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        }
+        
+        var uiColor: UIColor {
+            UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        }
     }
 }
