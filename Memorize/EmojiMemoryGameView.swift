@@ -11,10 +11,12 @@ import SwiftUI
 struct EmojiMemoryGameView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     
+    init(theme: Theme) {
+        self.viewModel = EmojiMemoryGame(theme: theme)
+    }
+    
     var body: some View {
         VStack {
-            Text(viewModel.themeName)
-                .font(Font.largeTitle)
             Grid(viewModel.cards) { card in
                 CardView(card: card).onTapGesture {
                     withAnimation(.linear(duration: 0.75)) {
@@ -41,7 +43,7 @@ struct EmojiMemoryGameView: View {
             
             
         }
-            .padding()
+            .padding([.bottom, .leading, .trailing])
             .foregroundColor(viewModel.themeColor)
         
     }
@@ -103,8 +105,7 @@ struct CardView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        let game = EmojiMemoryGame()
-        game.choose(card: game.cards[0])
-        return EmojiMemoryGameView(viewModel: game)
+        let store = ThemeStore()
+        return EmojiMemoryGameView(theme: store.themes[0])
     }
 }
