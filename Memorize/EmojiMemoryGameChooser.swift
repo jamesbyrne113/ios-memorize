@@ -29,6 +29,12 @@ struct EmojiMemoryGameChooser: View {
                 }
             }
             .navigationBarTitle(self.store.name)
+            .navigationBarItems(
+                leading: Button(
+                    action: { self.store.addTheme() },
+                    label: { Image(systemName: "plus").imageScale(.large) }
+                ),
+                trailing: EditButton())
         }
     }
     

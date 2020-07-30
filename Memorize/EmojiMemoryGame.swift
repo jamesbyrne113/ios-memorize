@@ -18,25 +18,6 @@ class EmojiMemoryGame: ObservableObject {
         self.theme = theme
         self.model = EmojiMemoryGame.createMemoryGame(theme)
     }
-
-//    private static var themes = [
-//        Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"], color: UIColor.systemOrange, numOfEmojis: 5),
-//        Theme(name: "Christmas", emojis: ["🎅", "🤶", "🎄", "🎁", "❄️", "⛄️"], color: UIColor.systemBlue, numOfEmojis: 6),
-//        Theme(name: "Summer", emojis: ["☀️", "🕶", "🥵", "🏖", "🏝", "⛱", "🌞", "🍉"], color: UIColor.systemYellow, numOfEmojis: 8),
-//        Theme(name: "Sports", emojis: ["⚽️", "🏓", "🏊‍♂️", "🎾", "🎿", "🏀", "🏂", "🏇", "🏈", "🏏", "🏑", "🏒", "🏸", "🏹", "⚾️", "⛳️", "🥍", "🥎", "⛷", "⛸", "🏎"], color: UIColor.systemGreen, numOfEmojis: 10),
-//        Theme(name: "Music", emojis: ["🎸", "🎧", "🎹", "🎤", "🎺", "🎻", "🎼", "🪕", "🎷", "🥁", "🎶", "🎵", "👩‍🎤", "👨‍🎤"], color: UIColor.systemRed, numOfEmojis: 10),
-//        Theme(name: "Flags", emojis: ["🇮🇪", "🇪🇸", "🇫🇷", "🇨🇦", "🇺🇸", "🇨🇳", "🇳🇮", "🇬🇧"], color: UIColor.systemGray, numOfEmojis: 8),
-//    ]
-        
-//    private func createMemoryGame() -> MemoryGame<String> {
-//        let theme = themes.randomElement()!
-//
-//        print("json = \(String(decoding: theme.json!, as: UTF8.self))")
-//
-//        return MemoryGame<String>(numberOfPairsOfCards: theme.numOfEmojis, themeName: theme.name) { pairIndex in
-//            return theme.emojis[pairIndex]
-//        }
-//    }
     
     private static func createMemoryGame(_ theme: Theme) -> MemoryGame<String> {
         print("json = \(String(decoding: theme.json!, as: UTF8.self))")

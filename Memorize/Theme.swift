@@ -6,8 +6,8 @@
 //  Copyright © 2020 jamesbyrne. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import Combine
 
 class Theme: Codable, Identifiable {
     let id: UUID
@@ -28,6 +28,40 @@ class Theme: Codable, Identifiable {
     var json: Data? {
         return try? JSONEncoder().encode(self)
     }
+    
+    init?(id: UUID) {
+        let defaultsKey = "Theme.\(id.uuidString)"
+        let json = UserDefaults.standard.data(forKey: defaultsKey)
+        if json != nil, let newTheme = try? JSONDecoder().decode(Theme.self, from: json!) {
+            self.id = newTheme.id
+            self.name = newTheme.name
+            self.emojis = newTheme.emojis
+            self.numOfEmojis = newTheme.numOfEmojis
+            self._color = newTheme._color
+        } else {
+            return nil
+        }
+    }
+    
+    init() {
+        self.id = UUID()
+        self.name = "Untitled"
+        self.emojis = ["❓", "⚠️"]
+        self.numOfEmojis = 2
+        self._color = ThemeColor(uiColor: .black)
+    }
+    
+//    init?(json: Data?) {
+//        if json != nil, let newTheme = try? JSONDecoder().decode(Theme.self, from: json!) {
+//            self.id = newTheme.id
+//            self.name = newTheme.name
+//            self.emojis = newTheme.emojis
+//            self.numOfEmojis = newTheme.numOfEmojis
+//            self._color = newTheme._color
+//        } else {
+//            return nil
+//        }
+//    }
     
     init(name: String, emojis: [String], color: UIColor, numOfEmojis: Int, id: UUID? = nil) {
         self.name = name
