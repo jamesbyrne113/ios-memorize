@@ -10,7 +10,7 @@ import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: Array<Card>
-    private(set) var themeName: String
+    
     var score = 0
     
     private var indexOfTheOneAndOnlyFaceUpCard: Int? {
@@ -46,8 +46,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         }
     }
     
-    init(numberOfPairsOfCards: Int, themeName: String, cardContentFactory: (Int) -> CardContent) {
-        self.themeName = themeName
+    init(numberOfPairsOfCards: Int, cardContentFactory: (Int) -> CardContent) {
         cards = Array<Card>()
         for pairIndex in 0..<numberOfPairsOfCards {
             let content = cardContentFactory(pairIndex);

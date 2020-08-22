@@ -9,31 +9,49 @@
 import SwiftUI
 import Combine
 
-class Theme: Codable, Identifiable {
-    let id: UUID
+class Theme: Codable, ObservableObject, Identifiable, Equatable {
+    var name: String { willSet { objectWillChange.send() } }
     
-    let name: String
+    var emojis: [String] { willSet { objectWillChange.send() } }
     
-    var emojis: [String]
-    
-    fileprivate var _color: ThemeColor
+    fileprivate var _color: ThemeColor { willSet { objectWillChange.send() } }
     
     var color: UIColor {
         get { _color.uiColor }
         set { _color = ThemeColor(uiColor: newValue)}
     }
     
-    var numOfEmojis: Int
+    var numOfEmojis: Int { didSet { objectWillChange.send() } }
     
     var json: Data? {
         return try? JSONEncoder().encode(self)
     }
     
-    init?(id: UUID) {
-        let defaultsKey = "Theme.\(id.uuidString)"
-        let json = UserDefaults.standard.data(forKey: defaultsKey)
+    func add(emojis newEmojis: String) {
+        for emoji in newEmojis {
+            if !emojis.contains(String(emoji)) {
+                emojis.append(String(emoji))
+                objectWillChange.send()
+            }
+        }
+    }
+    
+    func remove(emoji: String) {
+        emojis.removeAll(where: { $0 == emoji })
+        objectWillChange.send()
+    }
+    
+    static func == (lhs: Theme, rhs: Theme) -> Bool { lhs.id == rhs.id }
+    
+    init() {
+        self.name = "Untitled"
+        self.emojis = ["❓", "⚠️"]
+        self.numOfEmojis = 2
+        self._color = ThemeColor(uiColor: .black)
+    }
+    
+    init?(json: Data?) {
         if json != nil, let newTheme = try? JSONDecoder().decode(Theme.self, from: json!) {
-            self.id = newTheme.id
             self.name = newTheme.name
             self.emojis = newTheme.emojis
             self.numOfEmojis = newTheme.numOfEmojis
@@ -43,32 +61,11 @@ class Theme: Codable, Identifiable {
         }
     }
     
-    init() {
-        self.id = UUID()
-        self.name = "Untitled"
-        self.emojis = ["❓", "⚠️"]
-        self.numOfEmojis = 2
-        self._color = ThemeColor(uiColor: .black)
-    }
-    
-//    init?(json: Data?) {
-//        if json != nil, let newTheme = try? JSONDecoder().decode(Theme.self, from: json!) {
-//            self.id = newTheme.id
-//            self.name = newTheme.name
-//            self.emojis = newTheme.emojis
-//            self.numOfEmojis = newTheme.numOfEmojis
-//            self._color = newTheme._color
-//        } else {
-//            return nil
-//        }
-//    }
-    
-    init(name: String, emojis: [String], color: UIColor, numOfEmojis: Int, id: UUID? = nil) {
+    init(name: String, emojis: [String], color: UIColor, numOfEmojis: Int) {
         self.name = name
         self.emojis = emojis
         self.numOfEmojis = numOfEmojis
         self._color = ThemeColor(uiColor: color)
-        self.id = id ?? UUID()
         
         if self.emojis.count == 0 {
             self.emojis = ["❓", "⚠️"]

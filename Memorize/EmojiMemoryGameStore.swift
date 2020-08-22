@@ -1,15 +1,15 @@
 //
-//  ThemeStore.swift
+//  EmojiMemoryGameStore.swift
 //  Memorize
 //
-//  Created by James Byrne on 28/07/2020.
+//  Created by James Byrne on 30/07/2020.
 //  Copyright © 2020 jamesbyrne. All rights reserved.
 //
 
 import SwiftUI
 import Combine
 
-class ThemeStore: ObservableObject {
+class EmojiMemoryGameStore: ObservableObject {
     let name: String
     
     private static let themesKey = "EmojiMemoryGameStore.ThemesKey"
@@ -18,15 +18,14 @@ class ThemeStore: ObservableObject {
     
     init(named name: String = "Memorize") {
         self.name = name
-        let defaultsKey = "ThemeStore.\(name)"
-        themes = Array(fromPropertyList: UserDefaults.standard.object(forKey: defaultsKey)) ?? []
-        autosave = $themes.sink { themes in
-            print("AUTOSAVED")
-            UserDefaults.standard.set(themes.asPropertyList, forKey: defaultsKey)
+        let defaultsKey = "EmojiMemoryGameStore.\(name)"
+        emojiMemoryGames = Array(fromPropertyList: UserDefaults.standard.object(forKey: defaultsKey)) ?? []
+        autosave = $emojiMemoryGames.sink { emojiMemoryGames in
+            UserDefaults.standard.set(emojiMemoryGames.asPropertyList, forKey: defaultsKey)
         }
         
-        if themes.count == 0 {
-            themes.append(contentsOf: [
+        if emojiMemoryGames.count == 0 {
+            addThemes([
                 Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷", "🧙‍♀️", "🦇"], color: UIColor.systemOrange, numOfEmojis: 5),
                 Theme(name: "Christmas", emojis: ["🎅", "🤶", "🎄", "🎁", "❄️", "⛄️"], color: UIColor.systemBlue, numOfEmojis: 6),
                 Theme(name: "Summer", emojis: ["☀️", "🕶", "🥵", "🏖", "🏝", "⛱", "🌞", "🍉"], color: UIColor.systemYellow, numOfEmojis: 8),
@@ -37,26 +36,47 @@ class ThemeStore: ObservableObject {
         }
     }
     
-    @Published var themes: [Theme]
+    @Published var emojiMemoryGames: [EmojiMemoryGame]
     
-    func addTheme() {
-        themes.append(Theme())
+    func add() {
+        emojiMemoryGames.append(EmojiMemoryGame())
     }
     
-    func removeTheme(_ theme: Theme) -> Bool {
-        if let themeIndex = themes.firstIndex(matching: theme) {
-            themes.remove(at: themeIndex)
+    @discardableResult
+    func remove(at index: Int) -> EmojiMemoryGame {
+        return emojiMemoryGames.remove(at: index)
+    }
+    
+    func remove(emojiMemoryGame: EmojiMemoryGame) -> Bool {
+        if let index = emojiMemoryGames.firstIndex(matching: emojiMemoryGame) {
+            emojiMemoryGames.remove(at: index)
             return true
         }
         return false
     }
+    
+    func addThemes(_ themes: [Theme]) {
+        for theme in themes {
+            addTheme(theme)
+        }
+    }
+
+    func addTheme(_ theme: Theme) {
+        emojiMemoryGames.append(EmojiMemoryGame(theme: theme))
+    }
+    
+    func reset(theme: Theme) {
+        if let index = emojiMemoryGames.firstIndex(where: { emojiMemoryGame in emojiMemoryGame.theme == theme }) {
+            emojiMemoryGames[index].resetGame()
+        }
+    }
 }
 
-extension Array where Element == Theme {
+extension Array where Element == EmojiMemoryGame {
     var asPropertyList: [String] {
         var uuidStrings = [String]()
-        for theme in self {
-            uuidStrings.append(theme.id.uuidString)
+        for emojiMemorygame in self {
+            uuidStrings.append(emojiMemorygame.id.uuidString)
         }
         return uuidStrings
     }
@@ -65,11 +85,8 @@ extension Array where Element == Theme {
         self.init()
         let uuidStrings = plist as? [String] ?? [String]()
         for uuidString in uuidStrings {
-            if let uuid = UUID(uuidString: uuidString) {
-                if let theme = Theme(id: uuid) {
-                    self.append(theme)
-                }
-            }
+            self.append(EmojiMemoryGame(id: UUID(uuidString: uuidString)))
         }
     }
 }
+

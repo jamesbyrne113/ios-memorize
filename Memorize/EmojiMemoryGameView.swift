@@ -11,8 +11,8 @@ import SwiftUI
 struct EmojiMemoryGameView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     
-    init(theme: Theme) {
-        self.viewModel = EmojiMemoryGame(theme: theme)
+    init(emojiMemoryGame: EmojiMemoryGame) {
+        self.viewModel = emojiMemoryGame
     }
     
     var body: some View {
@@ -105,7 +105,7 @@ struct CardView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = ThemeStore()
-        return EmojiMemoryGameView(theme: store.themes[0])
+        let store = EmojiMemoryGameStore()
+        return EmojiMemoryGameView(emojiMemoryGame: store.emojiMemoryGames[0])
     }
 }

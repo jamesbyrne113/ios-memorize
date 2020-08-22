@@ -9,40 +9,35 @@
 import SwiftUI
 
 struct EmojiMemoryGameChooser: View {
-    @EnvironmentObject var store: ThemeStore
+    @EnvironmentObject var store: EmojiMemoryGameStore
+    
+    @State private var editMode: EditMode = .inactive
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(store.themes) { theme in
-                    NavigationLink(destination: EmojiMemoryGameView(theme: theme)
-                        .navigationBarTitle(theme.name)
+                ForEach(store.emojiMemoryGames) { emojiMemoryGame in
+                    NavigationLink(destination: EmojiMemoryGameView(emojiMemoryGame: emojiMemoryGame)
+                        .navigationBarTitle(emojiMemoryGame.themeName)
                     ) {
-                        self.themeItem(theme)
+                        EditableThemeListItem(theme: emojiMemoryGame.theme, isEditing: self.editMode.isEditing)
                     }
                 }
                 .onDelete { indexSet in
                     indexSet.forEach { index in
-                        print(index)
-                        self.store.themes.remove(at: index)
+                        self.store.remove(at: index)
                     }
                 }
             }
             .navigationBarTitle(self.store.name)
             .navigationBarItems(
                 leading: Button(
-                    action: { self.store.addTheme() },
+                    action: { self.store.add() },
                     label: { Image(systemName: "plus").imageScale(.large) }
                 ),
-                trailing: EditButton())
-        }
-    }
-    
-    private func themeItem(_ theme: Theme) -> some View {
-        VStack(alignment: .leading) {
-            Text(theme.name).font(.title)
-                .foregroundColor(Color(theme.color))
-            Text(theme.emojis.joined()).font(.callout).lineLimit(1)
+                trailing: EditButton()
+            )
+            .environment(\.editMode, $editMode)
         }
     }
 }
